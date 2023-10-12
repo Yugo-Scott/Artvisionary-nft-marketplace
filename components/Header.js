@@ -69,10 +69,11 @@ const Header = () => {
   return (
     <>
       <section
-        className={` ${isOpen
-          ? `sticky top-0 z-[100] w-full  sm:px-4 transition duration-250 ease-in-out left-[0] `
-          : `sticky top-0 z-[100] w-full  sm:px-4 transition duration-250 ease-in-out left-[-100%]`
-          }`}
+        className={` ${
+          isOpen
+            ? `sticky top-0 z-[100] w-full  sm:px-4 transition duration-250 ease-in-out left-[0] `
+            : `sticky top-0 z-[100] w-full  sm:px-4 transition duration-250 ease-in-out left-[-100%]`
+        }`}
       >
         <nav
           className={
@@ -89,7 +90,12 @@ const Header = () => {
           <h2 className="mx-2 mb-2">
             <Link href="/">
               <a>
-                <Image src="/images/Treasure Art_LOGO_M.png" alt="Treasure Art Logo" width={130} height={45} />
+                <Image
+                  src="/images/Treasure Art_LOGO_M.png"
+                  alt="Treasure Art Logo"
+                  width={130}
+                  height={45}
+                />
               </a>
             </Link>
           </h2>
@@ -100,14 +106,13 @@ const Header = () => {
                   className={
                     currentRoute === "/dashboard"
                       ? "text-white text-base font-medium"
-                      : "text-gray-500 font-normal hover:text-sky-500"  // 黒背景に対して見えるように、ホバーカラーを更新
+                      : "text-gray-500 font-normal hover:text-sky-500" // 黒背景に対して見えるように、ホバーカラーを更新
                   }
                 >
                   Home
                 </a>
               </Link>
             </li>
-
 
             <li>
               <Link href="/createnft">
@@ -123,7 +128,7 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link href="/profile">
+              <Link href="/dashboard2">
                 <a
                   className={
                     currentRoute === "/profile"
@@ -152,11 +157,17 @@ const Header = () => {
 
           <div className="flex items-center justify-end space-x-4">
             {addr ? (
-              <button onClick={toggleWalletConnection} className="text-xs sm:text-sm bg-sky-500 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-blue-800">
+              <button
+                onClick={toggleWalletConnection}
+                className="text-xs sm:text-sm bg-sky-500 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-blue-800"
+              >
                 DisconnectWallet
               </button>
             ) : (
-              <button onClick={toggleWalletConnection} className="text-xs sm:text-sm bg-blue-600 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-blue-700">
+              <button
+                onClick={toggleWalletConnection}
+                className="text-xs sm:text-sm bg-blue-600 px-1 sm:px-2 py-0.5 sm:py-1 rounded hover:bg-blue-700"
+              >
                 ConnectWallet
               </button>
             )}
@@ -165,7 +176,6 @@ const Header = () => {
             </p>
           </div>
 
-
           <div className="hidden sm:block cursor-pointer" onClick={toggle}>
             <HambergerMenu size="32" color="#d9e3f0" />
           </div>
@@ -173,10 +183,11 @@ const Header = () => {
       </section>
 
       <section
-        className={`${isOpen
-          ? `block fixed h-screen z-[999] w-screen  backdrop-blur-lg bg-[#000000]/60  top-0 left-0 transition-all font-body`
-          : `hidden`
-          }`}
+        className={`${
+          isOpen
+            ? `block fixed h-screen z-[999] w-screen  backdrop-blur-lg bg-[#000000]/60  top-0 left-0 transition-all font-body`
+            : `hidden`
+        }`}
       >
         <div className="grid items-center justify-center h-screen grid-rows-3 text-center">
           <CloseSquare
@@ -219,10 +230,10 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link href="/profile">
+              <Link href="/dashboard2">
                 <a
                   className={
-                    currentRoute === "/profile"
+                    currentRoute === "/dashboard2"
                       ? "text-white text-base font-medium"
                       : "text-gray-500 font-normal hover:text-white"
                   }

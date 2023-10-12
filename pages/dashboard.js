@@ -1,7 +1,7 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import { Footer, Header } from "../components";
-import ContractABI from "../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json";
+// import ContractABI from "../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { ethers } from "ethers";
@@ -17,21 +17,56 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
+  const [likeCount, setLikeCount] = useState({});
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   const router = useRouter();
 
-  const getContract = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-    let contract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-      ContractABI.abi,
-      provider
-    );
-    return contract;
+  const handleLikeClick = (i) => {
+    setLikeCount((prevCount) => ({
+      ...prevCount,
+      [i]: (prevCount[i] || 0) + 1,
+    }));
   };
+
+  const handleLike = async (nft, i) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.patch(
+        process.env.NEXT_PUBLIC_BACKEND_API_URL + `nfts/updateLike`,
+        {
+          tokenURI: nft.tokenURI,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        handleLikeClick(i);
+      }
+      console.log(response.data.message);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        console.error("Error liking the NFT:", error.response.data.message);
+      } else {
+        console.error("Error liking the NFT:", error.message);
+      }
+    }
+  };
+
+  // const getContract = async () => {
+  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+  //   let contract = new ethers.Contract(
+  //     process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+  //     ContractABI.abi,
+  //     provider
+  //   );
+  //   return contract;
+  // };
   // const getContract = async () => {
   //   try {
   //     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -49,58 +84,67 @@ const Dashboard = () => {
   //   }
   // };
 
-
-  const maxRetryCount = 3;
-  const retryInterval = 2000; // 2 seconds
-
-
-  const getNfts = async (retryCount = 0) => {
-    try {
-      const contract = await getContract();
-
-      const data = await contract.fetchMarketItems();
-
-      const items = await Promise.all(
-        data?.map(async (i) => {
-          const tokenURI = await contract.tokenURI(i.tokenId);
-          const meta = await axios.get(mainURL + tokenURI);
-          let price = ethers.utils.formatUnits(i.price.toString(), "ether");
-
-          let item = {
-            price,
-            tokenId: i.tokenId.toNumber(),
-            seller: i.seller,
-            owner: i.owner,
-            image: meta.data.image,
-            name: meta.data.name,
-            description: meta.data.description,
-            tokenURI,
-          };
-          return item;
-        })
-      );
-      setNts([...items].reverse());
-      setLoading(true);
-      //   } catch (error) {
-      //     console.error(error);
-      //     toast.error("Something went wrong");
-      //     setShowModal(true);
-      //   }
-      // };
-    } catch (error) {
-      console.error(error);
-      if (error.message.includes("429") && retryCount < maxRetryCount) {
-        setTimeout(() => getNfts(retryCount + 1), retryInterval);
-        return;
-      }
-      toast.error("Something went wrong,少し待った後、更新ボタンを押してください。");
-      setShowModal(true);
-    }
-  };
-
   useEffect(() => {
+    const maxRetryCount = 3;
+    const retryInterval = 2000; // 2 seconds
+
+    const getNfts = async (retryCount = 0) => {
+      const accessToken = localStorage.getItem("accessToken");
+
+      try {
+        const response = await axios.get(
+          process.env.NEXT_PUBLIC_BACKEND_API_URL + `nfts`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        console.log(response.data.data.data);
+        const items = await Promise.all(
+          response.data.data.data.map(async (i) => {
+            const meta = await axios.get(mainURL + i.tokenURI);
+
+            // await sleep(1000);
+            console.log(i.tokenURI);
+
+            let item = {
+              price: i.price,
+              tokenId: i.tokenId,
+              seller: i.seller,
+              owner: i.owner,
+              likes: i.likes,
+              image: meta.data.image,
+              name: i.name,
+              description: i.description,
+              tokenURI: i.tokenURI,
+            };
+            return item;
+          })
+        );
+        setNts([...items].reverse());
+        setLoading(true);
+        //   } catch (error) {
+        //     console.error(error);
+        //     toast.error("Something went wrong");
+        //     setShowModal(true);
+        //   }
+        // };
+      } catch (error) {
+        console.error(error);
+        if (error.message.includes("429") && retryCount < maxRetryCount) {
+          setTimeout(() => getNfts(retryCount + 1), retryInterval);
+          return;
+        }
+        toast.error(
+          "Something went wrong,少し待った後、更新ボタンを押してください。"
+        );
+        setShowModal(true);
+      }
+    };
+
     getNfts();
-  }, []);
+  }, []); 
 
 
 
@@ -133,7 +177,7 @@ const Dashboard = () => {
           <p>ウォレットを接続してください。</p>
           <button
             className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
-            onClick={connectWallet}
+            // onClick={connectWallet}
           >
             コネクトウォレット
           </button>
@@ -186,7 +230,6 @@ const Dashboard = () => {
             </div>
           )} */}
 
-
           <section className="bg-black max-w-[1200px] my-20 mx-auto grid grid-cols-3 md:grid-cols-2 gap-4 font-body  overflow-hidden top-7 md:gap-5 medium md:px-5 sm:grid-cols-1 sm:h-full relative justify-center items-center ">
             {nfts?.map((nft, i) => (
               <div key={i} className="w-full h-[536px] sm:h-full ssm:h-max">
@@ -202,7 +245,7 @@ const Dashboard = () => {
                   <div className="relative transition duration-150 ease-in-out delay-150">
                     <img
                       src={mainURL + nft?.image}
-                      alt="mock"
+                      alt={nft.name}
                       className="w-full h-[352px] ssm:h-max rounded-2xl "
                     />
                     <div className="absolute top-0 left-0  bg-white/40  backdrop-blur-xl w-full h-full z-[20] rounded-2xl opacity-0 hover:opacity-100">
@@ -235,6 +278,12 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div>
+                        <button onClick={() => handleLike(nft, i)}>
+                          ❤️ いいね
+                        </button>
+                        <h4 className="my-0 text-[#fff]">{nft.likes.length}</h4>
+                      </div>
+                      <div>
                         <p className="my-1 text-[#8F9CA9]">価格</p>
                         <h4 className="my-0 text-[#fff]">{nft.price} Matic</h4>
                       </div>
@@ -242,8 +291,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-
-
             ))}
           </section>
           <Footer />
@@ -252,5 +299,24 @@ const Dashboard = () => {
     </div>
   );
 };
+
+// function downloadJSON(data, filename = "data.json") {
+//   // JSON データを文字列に変換
+//   const jsonString = JSON.stringify(data, null, 2);
+
+//   // Blob を作成
+//   const blob = new Blob([jsonString], { type: "application/json" });
+//   const url = URL.createObjectURL(blob);
+
+//   // ダウンロードリンクを作成
+//   const downloadLink = document.createElement("a");
+//   downloadLink.href = url;
+//   downloadLink.download = filename;
+
+//   // リンクをクリックしてダウンロードを開始
+//   document.body.appendChild(downloadLink);
+//   downloadLink.click();
+//   document.body.removeChild(downloadLink);
+// }
 
 export default Dashboard;
