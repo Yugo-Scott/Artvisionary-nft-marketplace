@@ -2,17 +2,69 @@ import Head from "next/head";
 import Image from "next/image";
 import data from "../constants/mock-nft.json";
 import mockartist from "../constants/mock-artist.json";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { Footer, Header, Slideshow2 } from "../components";
 import Link from 'next/link';
+import axios from "axios";
+import { ethers } from "ethers";
 
 export default function Home() {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-
+  const [account, setAccount] = useState("");
+  const [accessToken, setAccessToken] = useState("");
   const [addr, setAddr] = useState("");
 
   const router = useRouter();
+
+  const authenticate = useCallback(
+    async (account) => {
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_API_URL + `auth/nonce`,
+        { address: account }
+      );
+
+      // check the response
+      // console.log(response);
+      // console.log(response.data.message);
+      // console.log(response.data.temptoken);
+
+      const { temptoken, message } = response.data;
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      // const address = await signer.getAddress();
+      const signature = await signer.signMessage(response.data.message);
+
+      console.log(signature);
+      console.log(account);
+      console.log(message);
+      console.log(temptoken);
+
+      const authResponse = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_API_URL + `auth/verify`,
+        {
+          address: account,
+          signature: signature,
+          message: message,
+          temptoken: temptoken,
+        }
+      );
+
+      const { token } = authResponse.data;
+      localStorage.setItem("accessToken", token);
+      setAccessToken(token);
+      try {
+        localStorage.setItem("accessToken", token);
+        console.log("Stored token:", localStorage.getItem("accessToken"));
+      } catch (error) {
+        console.error("Error storing token:", error);
+      }
+
+      return token;
+    },
+    [account]
+  );
 
   const connectWallet = async () => {
     try {
@@ -27,16 +79,23 @@ export default function Home() {
       });
       setIsWalletConnected(true);
       localStorage.setItem("walletAddress", accounts[0]);
-      router.push("/");
+      // use authenticate();
+      setAccount(accounts[0]);
+      setAddr(accounts[0]);
+      console.log(accounts[0]);
+      authenticate(accounts[0]);
+      // router.push("/");
     } catch (error) {
       console.error(error);
     }
   };
 
   // useEffect(() => {
-  //   const addr = localStorage.getItem("walletAddress");
-  //   setAddr(addr);
-  // }, []);
+  //   if (account) {
+  //     authenticate();
+  //   }
+  // }, [account, authenticate]);
+
   useEffect(() => {
     const addr = localStorage.getItem("walletAddress");
     if (addr) {
