@@ -6,6 +6,7 @@ import { useBundler } from "../context/bundlrContext";
 import ContractABI from "../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
+import axios from "axios";
 
 const mainURL = `https://arweave.net/`;
 
@@ -91,6 +92,7 @@ const Create = () => {
 
   const mintNFT = async (tokenURI) => {
     try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum); 
       const contract = await getContract();
 
       const price = ethers.utils.parseUnits(nftDetails.price, "ether");
@@ -102,6 +104,44 @@ const Create = () => {
         value: listingPrice,
       });
       await transaction.wait();
+
+      const receipt = await provider.getTransactionReceipt(transaction.hash);
+      const eventTopic = contract.interface.getEventTopic("MarketItemCreated");
+      const logs = receipt.logs.filter((log) =>
+        log.topics.includes(eventTopic)
+      );
+      const event = contract.interface.parseLog(logs[0]);
+      const newTokenId = event.args.tokenId.toNumber(); // イベントからtokenIdを取得
+      console.log(newTokenId);
+
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/nft`,
+        {
+          name: nftDetails.name,
+          description: nftDetails.description,
+          price: nftDetails.price,
+          image: nftDetails.image,
+          tokenURI: tokenURI,
+          tokenId: newTokenId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      console.log(response);
+
+      if (response.status !== 200) {
+        toast.error("Something went wrong");
+        setLoading(false);
+        return;
+      } else {
+        toast.success("NFT stored at the backend");
+      }
 
       setLoading(false);
 
