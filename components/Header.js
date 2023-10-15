@@ -101,6 +101,19 @@ const Header = () => {
           </h2>
           <ul className="flex gap-3 items-center justify-center transition-all list-none sm:hidden">
             <li>
+              <Link href="/profileshop">
+                <a
+                  className={
+                    currentRoute === "/profileshop"
+                      ? "text-white text-base font-medium"
+                      : "text-gray-500 font-normal hover:text-sky-500" // 黒背景に対して見えるように、ホバーカラーを更新
+                  }
+                >
+                  Register
+                </a>
+              </Link>
+            </li>
+            <li>
               <Link href="/dashboard">
                 <a
                   className={

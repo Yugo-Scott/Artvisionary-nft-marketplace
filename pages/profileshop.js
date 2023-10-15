@@ -1,40 +1,91 @@
 import Head from 'next/head';
 import { useState } from 'react';
+import Image from "next/image";
+import axios from 'axios';
 
 export default function ProfileArtist() {
-	const [artistName, setArtistName] = useState('');
-	const [profile, setProfile] = useState('');
-	const [pr, setPR] = useState('');
+	const [name, setName] = useState('');
+	const [bio , setBio] = useState('');
+	const [content, setContent] = useState('');
+	const [image, setImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+
+	// const [addr, setAddr] = useState("");
+	// const [account, setAccount] = useState("");
+	// const [isWalletConnected, setIsWalletConnected] = useState(false);
+
+		// ファイルが選択された時の処理
+  	const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+
+    // 画像のプレビュー
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    };
+  };
+
+	//   const connectWallet = async () => {
+  //   try {
+  //     const { ethereum } = window;
+
+  //     if (!ethereum) {
+  //       alert("Please Install MetaMask");
+  //       return;
+  //     }
+  //     const accounts = await ethereum.request({
+  //       method: "eth_requestAccounts",
+  //     });
+  //     setIsWalletConnected(true);
+  //     localStorage.setItem("walletAddress", accounts[0]);
+  //     // use authenticate();
+  //     setAccount(accounts[0]);
+  //     setAddr(accounts[0]);
+  //     console.log(accounts[0]);
+	// 	} catch (error) {
+	// 		console.error('There was an error connecting wallet', error);
+	// 	}
+	// };
+
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
+		const addr = localStorage.getItem("walletAddress");
+		// if (!isWalletConnected) {
+		// 	connectWallet();
+		// } else {
+		
 		// データをJSON形式で送信する
 		const formData = {
-			artistName,
-			profile,
-			pr
-		};
+      name,
+      bio,
+      content,
+      user_id: addr,
+      profile_image: image
+    };
 
 		try {
-			const response = await fetch('YOUR_BACKEND_ENDPOINT_HERE', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(formData)
-			});
+			const response = await axios.post(
+				process.env.NEXT_PUBLIC_BACKEND_API_URL + `users/register`,
+				formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-			if (!response.ok) {
-				throw new Error('Failed to submit data');
-			}
-
-			const data = await response.json();
-			console.log(data);
+			console.log(response);
 		} catch (error) {
 			console.error('There was an error submitting the form', error);
 		}
-	};
+	// }
+	}
+
+
+
 	return (
     <div className="flex flex-col w-full min-h-screen text-white font-[var(--font-inter)] bg-black">
       <Head>
@@ -49,7 +100,7 @@ export default function ProfileArtist() {
             <br />
             <br />
             <br />
-            <span style={{ fontSize: "2em", color: "#E57373" }}>
+            <span style={{ fontSize: "1.5em", color: "#E57373" }}>
               作品を購入したいメンバーへ
             </span>
             <br />
@@ -63,7 +114,8 @@ export default function ProfileArtist() {
             <br />
             あなた以外が購入した場合は、インセンティブをお支払いします。
             <br />
-            <span style={{ fontSize: "2em", color: "#E57373" }}>
+            <br />
+            <span style={{ fontSize: "1.5em", color: "#E57373" }}>
               作品を販売したいメンバーへ
             </span>
             <br />
@@ -94,34 +146,69 @@ export default function ProfileArtist() {
       </div>
 
       <div className="flex flex-col items-center w-full">
-        <div className="flex justify-center items-center w-full max-w-xs h-[153px] md:h-[203px] rounded-full bg-white hover:bg-gray-400 text-black hover:text-gray-700 text-base mt-4 transition duration-300">
+        <div className="flex justify-center items-center w-full max-w-xs h-[73px] md:h-[63px] rounded-full bg-white hover:bg-gray-400 text-black hover:text-gray-700 text-base mt-4 transition duration-300">
           <label className="font-semibold leading-[18px]">
-            <input type="file" className="hidden" />
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              name="profile_image"
+              onChange={handleImageChange}
+            />
             <p className="m-0">Select image file</p>
             <p className="m-0">or</p>
             <p className="m-0">Drop it here</p>
           </label>
         </div>
+        {previewImage && (
+          <div
+            className="mt-4"
+            style={{ width: "200px", height: "200px", position: "relative" }}
+          >
+            <Image
+              src={previewImage}
+              alt="Preview"
+              layout="fill"
+              objectFit="cover"
+            />
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col items-center mt-4">
           <label className="w-full max-w-xl leading-[150%] font-medium tracking-tight">
-            登録名（ショップ名）
+            登録名（メンバー名）
             <input
               type="text"
               className="w-full h-[48px] mt-2 bg-gray-200 border border-black rounded-[var(--br-xs)] p-2"
+              value={name}
+              placeholder="メンバー名"
+              name="name"
+              onChange={(e) => setName(e.target.value)}
             />
           </label>
 
           <label className="w-full max-w-xl leading-[150%] font-medium tracking-tight mt-4">
             プロフィール
-            <textarea className="w-full h-[140px] mt-2 bg-gray-200 border border-black rounded-[var(--br-xs)] p-2"></textarea>
+            <textarea
+              className="w-full h-[140px] mt-2 bg-gray-200 border border-black rounded-[var(--br-xs)] p-2"
+              value={bio}
+              placeholder="プロフィール"
+              name="bio"
+              onChange={(e) => setBio(e.target.value)}
+            ></textarea>
           </label>
 
           <label className="w-full max-w-2xl leading-[150%] font-medium tracking-tight mt-4">
             コミュニティーへ自己紹介
-            <textarea className="w-full h-[360px] mt-2 bg-gray-200 border border-black rounded-[var(--br-xs)] p-2"></textarea>
+            <textarea
+              className="w-full h-[360px] mt-2 bg-gray-200 border border-black rounded-[var(--br-xs)] p-2"
+              value={content}
+              placeholder="コミュニティーへ自己紹介"
+              name="content"
+              onChange={(e) => setContent(e.target.value)}
+            ></textarea>
           </label>
         </div>
 
