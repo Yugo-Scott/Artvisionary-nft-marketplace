@@ -87,12 +87,12 @@ const Create = () => {
 
     const tokenURI = await uploadURI(data);
 
-    mintNFT(tokenURI.data.id);
+    mintNFT(tokenURI.data.id, url);
   };
 
-  const mintNFT = async (tokenURI) => {
+  const mintNFT = async (tokenURI, url) => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum); 
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = await getContract();
 
       const price = ethers.utils.parseUnits(nftDetails.price, "ether");
@@ -113,16 +113,18 @@ const Create = () => {
       const event = contract.interface.parseLog(logs[0]);
       const newTokenId = event.args.tokenId.toNumber(); // イベントからtokenIdを取得
       console.log(newTokenId);
+      console.log(nftDetails.image);
+      console.log(url);
 
       const accessToken = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/nft`,
+        process.env.NEXT_PUBLIC_BACKEND_API_URL + `nfts`,
         {
           name: nftDetails.name,
           description: nftDetails.description,
           price: nftDetails.price,
-          image: nftDetails.image,
+          image: url,
           tokenURI: tokenURI,
           tokenId: newTokenId,
         },
@@ -229,7 +231,6 @@ const Create = () => {
                 <img
                   src={window.URL.createObjectURL(nftDetails.image)}
                   alt="image"
-                  ref={nftDetails.image}
                   className="w-full h-full  sm:h-[350px] rounded-3xl p-2"
                 />
               </div>
@@ -244,7 +245,9 @@ const Create = () => {
 
           <div className="w-full flex flex-col font-body gap-5">
             <div className="flex flex-col">
-              <label className="text-2xl my-1 font-semibold text-white">タイトル</label>
+              <label className="text-2xl my-1 font-semibold text-white">
+                タイトル
+              </label>
               <input
                 placeholder="title"
                 className="px-5 py-3 rounded-xl text-white
@@ -257,7 +260,9 @@ const Create = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-2xl my-1 font-semibold text-white">説明文</label>
+              <label className="text-2xl my-1 font-semibold text-white">
+                説明文
+              </label>
               <textarea
                 placeholder="explanation"
                 className="px-5 py-3 rounded-lg text-white placeholder:text-slate-400 bg-[#272D37]/60 border-none outline-none placeholder:font-body tx font-body"
@@ -270,7 +275,9 @@ const Create = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-2xl my-1 font-semibold text-white">価格</label>
+              <label className="text-2xl my-1 font-semibold text-white">
+                価格
+              </label>
               <input
                 type="number"
                 placeholder="0.01"
