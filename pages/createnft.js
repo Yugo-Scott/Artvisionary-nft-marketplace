@@ -137,12 +137,11 @@ const Create = () => {
 
       console.log(response);
 
-      if (response.status !== 200) {
+      // toast a error if response is not 200 or 201
+      if (response.status !== 200 && response.status !== 201) {
         toast.error("Something went wrong");
         setLoading(false);
         return;
-      } else {
-        toast.success("NFT stored at the backend");
       }
 
       setLoading(false);
