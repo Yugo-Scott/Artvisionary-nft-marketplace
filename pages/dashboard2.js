@@ -120,7 +120,7 @@ const Dashboard2 = () => {
             return item;
           })
         );
-        setNts([...items].reverse());
+        setNts([...items]);
         setLoading(true);
         //   } catch (error) {
         //     console.error(error);
@@ -130,7 +130,7 @@ const Dashboard2 = () => {
         // };
       } catch (error) {
         console.error(error);
-        if (error.message.includes("429") && retryCount < maxRetryCount) {
+        if (retryCount < maxRetryCount) {
           setTimeout(() => getNfts(retryCount + 1), retryInterval);
           return;
         }
