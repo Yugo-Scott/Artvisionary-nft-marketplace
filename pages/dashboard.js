@@ -132,7 +132,7 @@ const Dashboard = () => {
         // };
       } catch (error) {
         console.error(error);
-        if (error.message.includes("429") && retryCount < maxRetryCount) {
+        if (retryCount < maxRetryCount) {
           setTimeout(() => getNfts(retryCount + 1), retryInterval);
           return;
         }
