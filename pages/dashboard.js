@@ -122,7 +122,7 @@ const Dashboard = () => {
             return item;
           })
         );
-        setNts([...items]);
+        setNts([...items].reverse());
         setLoading(true);
         //   } catch (error) {
         //     console.error(error);
