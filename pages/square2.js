@@ -100,7 +100,7 @@ export default function Square() {
     // 3秒ごとにnextSlide関数を呼び出すタイマーを設定
     const timerId = setInterval(() => {
       nextSlide();
-    }, 10000); // 3000ミリ秒 = 3秒
+    }, 2000); // 3000ミリ秒 = 3秒
 
     // useEffectのクリーンアップ関数でタイマーをクリア
     return () => {
