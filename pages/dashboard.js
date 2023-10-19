@@ -280,7 +280,7 @@ const Dashboard = () => {
                       <div className="flex flex-col items-center">
                         <button
                           onClick={() => handleLike(nft, i)}
-                          className="text-3xl focus:outline-none bg-transparent border-none"
+                          className="text-3xl focus:outline-none bg-transparent border-none px-6"
                         >
                           ❤️
                         </button>
