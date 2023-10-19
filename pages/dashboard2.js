@@ -266,9 +266,12 @@ const Dashboard2 = () => {
                           </h4>
                         </div>
                       </div>
-                      <div>
-                        <button onClick={() => handleLike(nft, i)}>
-                          ❤️ いいね
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={() => handleLike(nft, i)}
+                          className="text-3xl focus:outline-none bg-transparent border-none"
+                        >
+                          ❤️
                         </button>
                         <h4 className="my-0 text-[#fff]">{nft.likes.length}</h4>
                       </div>
