@@ -33,7 +33,7 @@ export default function Square() {
   //   return contract;
   // };
   useEffect(() => {
-  const RETRY_INTERVAL = 5000; // 5 seconds
+  const RETRY_INTERVAL = 2000; // 5 seconds
   const MAX_RETRIES = 3;
   const getNfts = async (retryCount = 0) => {
       const accessToken = localStorage.getItem("accessToken");
