@@ -277,7 +277,7 @@ const Dashboard = () => {
                           </h4>
                         </div>
                       </div>
-                      <div>
+                      <div className="flex flex-col items-center">
                         <button
                           onClick={() => handleLike(nft, i)}
                           className="text-3xl focus:outline-none bg-transparent border-none"
