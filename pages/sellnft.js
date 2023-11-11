@@ -78,7 +78,7 @@ const SellNft = () => {
   };
 
   return (
-    <div className="relative ">
+    <div className="relative bg-black">
       <Head>
         <title> Sell NFT || Treasure Art</title>
         <link rel="shortcut icon" href="logo.png" />
@@ -97,12 +97,12 @@ const SellNft = () => {
               />
             </div>
             <div className="w-full h-full flex flex-col mt-3">
-              <label className="text-2xl my-1 font-semibold ">Price</label>
+              <label className="text-2xl my-1 font-semibold text-white">Price</label>
               <input
                 type="number"
                 placeholder="10"
                 className="px-5 py-3 rounded-xl
-               placeholder:text-slate-400 outline-none border-none  bg-[#272D37]/60 placeholder:font-body font-body"
+               placeholder:text-slate-400 text-white outline-none border-none  bg-[#272D37]/60 placeholder:font-body font-body"
                 value={formData.price}
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })

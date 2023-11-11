@@ -166,7 +166,7 @@ export default function Square() {
             <div className="flex items-center pr-24">
               {" "}
               <img
-                className="w-9 h-6 rounded-[9px]"
+                className="w-8 h-6 rounded-[9px]"
                 alt="MATIC"
                 src="/images/polygonlogo-mono.png"
               />

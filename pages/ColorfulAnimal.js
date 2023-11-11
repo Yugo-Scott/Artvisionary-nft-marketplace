@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from "next/router";
+import Link from 'next/link';
+import { QRCodeComponent } from "../components";
 
 export default function Sampleplay() {
 	const playlists = {
@@ -58,11 +60,13 @@ export default function Sampleplay() {
 		setCurrentSlideIndex(0); // プレイリストを切り替えるときにスライドのインデックスをリセット
 	};
 
+	const qrCodeURL = "https://www.tresureart.com/";
+
 	// 画像の自動切り替え
 	useEffect(() => {
 		const intervalId = setInterval(() => {
 			nextSlide();
-		}, 3000); // 3秒おきに次の画像に切り替え
+		}, 4000); // 4秒おきに次の画像に切り替え
 
 		// コンポーネントがアンマウントされた場合に、intervalをクリアする
 		return () => {
@@ -77,33 +81,73 @@ export default function Sampleplay() {
 				<link rel="shortcut icon" href="logo.png" />
 			</Head>
 
+
 			<div className="flex items-center justify-center w-full h-screen bg-black">
-				<div className="relative bg-black rounded-lg max-w-lg w-full max-h-[80%] h-auto">
+				<div className="flex flex-col relative bg-[#1a1a1a] rounded-lg w-full max-w-lg max-h-[80%] h-auto mx-4 md:mx-0">
 					<img
 						src={playlists[currentPlaylist][currentSlideIndex]}
 						alt={`Image from ${currentPlaylist} ${currentSlideIndex + 1}`}
-						className="object-cover w-full h-full rounded-lg"
+						className="object-cover w-full h-full rounded-t-lg p-6"
 					/>
-					<div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white text-3xl font-semibold p-2 rounded">
-						{currentPlaylist}
+					{/* <div className="flex justify-between items-center p-1 text-white w-full">
+						<div className="flex flex-col md:flex-row md:items-center">
+							<h2 className="text-lg font-bold mr-4">{currentPlaylist}</h2>
+							
+							<div className="flex items-center">
+								<img
+									className="w-8 h-6 rounded-[9px]"
+									alt="MATIC"
+									src="/images/polygonlogo-mono.png"
+								/>
+								<span className="ml-2 font-semibold leading-[32px]">
+									0.01 MATIC 
+								</span>
+							</div>
+						</div>
+						<div className="flex justify-end items-center w-full py-2">
+							<Link href={qrCodeURL} passHref>
+								<a target="_blank" rel="noopener noreferrer">
+									<QRCodeComponent
+										value={qrCodeURL}
+										className="w-1/4 max-w-[81px] h-1/4 max-h-[81px]"
+									/>
+								</a>
+							</Link>
+						</div>
+					</div> */}
+
+					<div className="flex justify-between items-center p-1 text-white w-full">
+						<div className="flex justify-between items-center w-full">
+							<h2 className="text-lg font-bold p-4">{currentPlaylist}</h2>
+							<div className="flex items-center">
+								<img
+									className="w-8 h-6 rounded-[9px]"
+									alt="MATIC"
+									src="/images/polygonlogo-mono.png"
+								/>
+								<span className="ml-2 font-semibold leading-[32px] p-3">
+									0.01 MATIC {/* 固定価格を表示 */}
+								</span>
+							</div>
+						</div>
+						<div className="flex justify-end items-center">
+							<Link href={qrCodeURL} passHref>
+								<a target="_blank" rel="noopener noreferrer">
+									<QRCodeComponent
+										value={qrCodeURL}
+										className="w-1/4 max-w-[81px] h-1/4 max-h-[81px]"
+									/>
+								</a>
+							</Link>
+						</div>
 					</div>
-					<div className="flex justify-between p-4 absolute bottom-0 left-0 right-0 bg-black bg-opacity-40 text-white rounded-b-lg">
-						<button onClick={prevSlide}>前へ</button>
-						<button onClick={handleGoBack}>戻る</button>
-						<button onClick={nextSlide}>次へ</button>
-					</div>
-					<div className="absolute bottom-[-4rem] left-1/2 transform -translate-x-1/2 flex space-x-4 p-4">
-						{Object.keys(playlists).map((genre) => (
-							<button
-								key={genre}
-								onClick={() => changePlaylist(genre)}
-								className="text-white bg-gray-800 p-2 rounded hover:bg-gray-700">
-								{genre}
-							</button>
-						))}
-					</div>
+
+
 				</div>
+				<button onClick={handleGoBack} className="absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-slate-500 text-white">戻る</button>
 			</div>
+
+
 
 		</>
 	);
