@@ -31,7 +31,11 @@ export default function Sampleplay() {
 			"/images/cell_5.jpeg",
 			"/images/cell_6.jpeg"
 		],
-
+		SF: [
+			"/images/space alien.png",
+			"/images/spaceboys.jpeg",
+			"/images/spacewomen.png"
+		]
 	};
 	const router = useRouter();
 
@@ -40,7 +44,7 @@ export default function Sampleplay() {
 	};
 
 
-	const [currentPlaylist, setCurrentPlaylist] = useState('Microscope');
+	const [currentPlaylist, setCurrentPlaylist] = useState('ColorfulAnimal');
 	const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
 	const nextSlide = () => {
@@ -77,7 +81,22 @@ export default function Sampleplay() {
 				<link rel="shortcut icon" href="logo.png" />
 			</Head>
 
+			{/* <div className="flex items-center justify-center w-full h-screen bg-black">
+				<div className="relative bg-black rounded-lg max-w-lg w-full max-h-[80%] h-auto">
+					<img
+						src={playlists[currentPlaylist][currentSlideIndex]}
+						alt={`Image from ${currentPlaylist} ${currentSlideIndex + 1}`}
+						className="object-cover w-full h-full rounded-lg"
+					/>
+					<div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white text-3xl font-semibold p-2 rounded">
+						{currentPlaylist}
+					</div>
 
+					<div className="absolute bottom-[-4rem] left-1/2 transform -translate-x-1/2 flex space-x-4 p-4">
+						<button onClick={handleGoBack}>戻る</button>
+					</div>
+				</div>
+			</div> */}
 			<div className="flex items-center justify-center w-full h-screen bg-black">
 				<div className="flex flex-col relative bg-[#1a1a1a] rounded-lg w-full max-w-lg max-h-[80%] h-auto mx-4 md:mx-0">
 					<img
@@ -86,20 +105,21 @@ export default function Sampleplay() {
 						className="object-cover w-full h-full rounded-t-lg p-6"
 					/>
 					<div className="flex justify-between items-center p-1 text-white w-full">
-						<div className="flex justify-between items-center w-full">
-							<h2 className="text-lg font-bold p-4">{currentPlaylist}</h2>
+						<div className="flex flex-col md:flex-row md:items-center">
+							<h2 className="text-lg font-bold mr-4">{currentPlaylist}</h2>
+							{/* <p className="text-sm md:mr-4">Slide {currentSlideIndex + 1}</p> */}
 							<div className="flex items-center">
 								<img
 									className="w-8 h-6 rounded-[9px]"
 									alt="MATIC"
 									src="/images/polygonlogo-mono.png"
 								/>
-								<span className="ml-2 font-semibold leading-[32px] p-3">
+								<span className="ml-2 font-semibold leading-[32px]">
 									0.01 MATIC {/* 固定価格を表示 */}
 								</span>
 							</div>
 						</div>
-						<div className="flex justify-end items-center">
+						<div className="flex justify-center items-center w-full py-2">
 							<Link href={qrCodeURL} passHref>
 								<a target="_blank" rel="noopener noreferrer">
 									<QRCodeComponent

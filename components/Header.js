@@ -154,7 +154,7 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link href="/square2">
+              <Link href="/square3">
                 <a
                   className={
                     currentRoute === "/square2"
