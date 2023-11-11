@@ -36,77 +36,76 @@ export default function Square() {
   //   return contract;
   // };
 
-  const getContract = () => {
-    // RPC URLを使用してプロバイダを初期化
-    const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+  // const getContract = () => {
+  //   // RPC URLを使用してプロバイダを初期化
+  //   const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
 
-    // コントラクトを初期化
-    let contract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-      ContractABI.abi,
-      provider
-    );
-    return contract;
-  };
+  //   // コントラクトを初期化
+  //   let contract = new ethers.Contract(
+  //     process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+  //     ContractABI.abi,
+  //     provider
+  //   );
+  //   return contract;
+  // };
 
-  const RETRY_INTERVAL = 5000; // 5 seconds
-  const MAX_RETRIES = 3;
-  const getNfts = async (retryCount = 0) => {
-    try {
-      const contract = await getContract();
+ useEffect(() => {
+   const RETRY_INTERVAL = 5000; // 5 seconds
+   const MAX_RETRIES = 3;
+   const getNfts = async (retryCount = 0) => {
+     const accessToken = localStorage.getItem('accessToken');
 
-      const data = await contract.fetchMarketItems();
+     try {
+       const response = await axios.get(
+         process.env.NEXT_PUBLIC_BACKEND_API_URL + `users/likes`,
+         {
+           headers: {
+             Authorization: `Bearer ${accessToken}`,
+           },
+         }
+       );
+       console.log(response.data.data.data.likes);
+       const items = await Promise.all(
+         response.data.data.data.likes.map(async (i) => {
+           const meta = await axios.get(mainURL + i.tokenURI);
+           console.log(i.tokenURI);
+           // let price = ethers.utils.formatUnits(i.price.toString(), "ether");
 
-      const items = await Promise.all(
-        data?.map(async (i) => {
-          const tokenURI = await contract.tokenURI(i.tokenId);
-          const meta = await axios.get(mainURL + tokenURI);
-          let price = ethers.utils.formatUnits(i.price.toString(), "ether");
+           let item = {
+             price: i.price,
+             tokenId: i.tokenId,
+             seller: i.seller,
+             owner: i.owner,
+             image: meta.data.image,
+             name: i.name,
+             description: i.description,
+             tokenURI: i.tokenURI,
+           };
+           return item;
+         })
+       );
+       // setNfts(items);
 
-          let item = {
-            price,
-            tokenId: i.tokenId.toNumber(),
-            seller: i.seller,
-            owner: i.owner,
-            image: meta.data.image,
-            name: meta.data.name,
-            description: meta.data.description,
-            tokenURI,
-          };
-          return item;
-        })
-      );
-      // setNfts(items);
+       setNfts([...items].reverse());
+       setLoading(true);
+     } catch (error) {
+       console.error(error);
 
-      setNfts([...items].reverse());
-      setLoading(true);
-    } catch (error) {
-      console.error(error);
+       if (error.code === 'CALL_EXCEPTION' && retryCount < MAX_RETRIES) {
+         // Retry after a delay
+         setTimeout(() => {
+           getNfts(retryCount + 1);
+         }, RETRY_INTERVAL);
+         return;
+       }
 
-      if (error.code === "CALL_EXCEPTION" && retryCount < MAX_RETRIES) {
-        // Retry after a delay
-        setTimeout(() => {
-          getNfts(retryCount + 1);
-        }, RETRY_INTERVAL);
-        return;
-      }
+       toast.error('Something went wrong、更新ボタンを押してください。');
+     }
+   };
 
-      toast.error("ウォレット接続エラー（polygon Mumbaiで接続）");
-    }
-
-  };
-
-
-
-  useEffect(() => {
-    getNfts();
-  }, []);
-  useEffect(() => {
-    // コンポーネントがマウントされた後に透明度を更新
+   getNfts();
     setOpacity(1);
-  }, []);
-
-
+ }, []);
 
   // useEffectの内部で画像のスライドショーの動作を設定
   useEffect(() => {
