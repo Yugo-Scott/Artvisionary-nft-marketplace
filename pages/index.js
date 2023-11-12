@@ -66,6 +66,31 @@ export default function Home() {
     [account]
   );
 
+  const checkUserExists = useCallback(
+    async (account) => {
+      try {
+        const response = await axios.post(
+        process.env.NEXT_PUBLIC_BACKEND_API_URL + `auth/checkuser`,
+        { address: account }
+      );
+      console.log(response);
+      const { userExists } = response.data.data;
+      console.log(userExists);
+      if (userExists) {
+        authenticate(account);
+        router.push("/dashboard");
+      } else {
+        router.push("/profileshop");
+      } 
+      }
+      catch (error) {
+        console.error(error);
+      }
+    },
+    [account]
+  ); 
+
+
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
@@ -83,7 +108,7 @@ export default function Home() {
       setAccount(accounts[0]);
       setAddr(accounts[0]);
       console.log(accounts[0]);
-      authenticate(accounts[0]);
+      checkUserExists(accounts[0]);
       // router.push("/");
     } catch (error) {
       console.error(error);
