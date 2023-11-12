@@ -100,7 +100,7 @@ const Header = () => {
             </Link>
           </h2>
           <ul className="flex gap-3 items-center justify-center transition-all list-none sm:hidden">
-            <li>
+            {/* <li>
               <Link href="/profileshop">
                 <a
                   className={
@@ -112,7 +112,7 @@ const Header = () => {
                   Register
                 </a>
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link href="/dashboard">
                 <a

@@ -154,13 +154,17 @@ export default function ProfileArtist() {
             <br />
             好きな作品を♡するだけで
             <br />
-            あなた好みのプレイリストをスライド再生できます。インテリアとして、モニターのスリープ機能として
+            あなた好みのプレイリストをスライド再生できます。
+            <br />
+            インテリアとして、モニターのスリープ機能として
             <br />
             アート作品をお楽しみください。
             <br />
             気に入った作品はリストから購入も可能。
             <br />
-            あなた以外が購入した場合は、インセンティブをお支払いします。
+            あなた以外が購入した場合は、
+             <br />
+            インセンティブをお支払いします。
           </p>
         </div>
         <div className="text-2xl w-1/2">
@@ -229,7 +233,7 @@ export default function ProfileArtist() {
             登録名（メンバー名）
             <input
               type="text"
-              className="w-full h-[48px] mt-2 bg-gray-300 border border-black rounded-[var(--br-xs)] p-2"
+              className="w-full h-[48px] mt-2 bg-gray-300 border border-black p-2 rounded-xl"
               value={name}
               placeholder="メンバー名"
               name="name"
