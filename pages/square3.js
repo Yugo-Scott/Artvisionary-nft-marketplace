@@ -64,6 +64,7 @@ export default function Square() {
            },
          }
        );
+       console.log(response);
        console.log(response.data.data.data.likes);
        const items = await Promise.all(
          response.data.data.data.likes.map(async (i) => {
@@ -76,6 +77,8 @@ export default function Square() {
              tokenId: i.tokenId,
              seller: i.seller,
              owner: i.owner,
+            //  sellerProfileImage: i.seller.profile_image,
+            //  sellerName: i.seller.name,
              image: meta.data.image,
              name: i.name,
              description: i.description,
@@ -85,6 +88,17 @@ export default function Square() {
          })
        );
        // setNfts(items);
+        //  each element and index
+       response.data.data.sellers.forEach((seller, index) => {
+          items[
+            index
+          ].sellerProfileImage = `${process.env.NEXT_PUBLIC_BACKEND_ROOT_URL}img/users/${seller.profile_image}`;
+          items[
+            index
+          ].sellerName = seller.name;
+        });
+        console.log(items);
+
 
        setNfts([...items].reverse());
        setLoading(true);
@@ -170,22 +184,29 @@ export default function Square() {
           <img
             src={mainURL + nfts[currentSlideIndex]?.image}
             alt={nfts[currentSlideIndex]?.name}
-            className={`object-contain max-h-[676px] max-w-[676px] h-full w-full p-4 transition-opacity duration-500 ${opacity ? 'opacity-100' : 'opacity-0'}`}
+            className={`object-contain max-h-[676px] max-w-[676px] h-full w-full p-4 transition-opacity duration-500 ${
+              opacity ? 'opacity-100' : 'opacity-0'
+            }`}
             // スライドが変わる度にアニメーションを実行
             style={{ opacity: opacity }}
           />
 
-
           <div className="flex justify-between absolute bottom-0 left-0 right-0 px-4 py-2 text-[#a3a3a3] w-full">
-            <div className="flex items-center w-1/2"> {/* w-1/2を追加して幅を親要素に合わせます */}
+            <div className="flex items-center w-1/2">
+              {' '}
+              {/* w-1/2を追加して幅を親要素に合わせます */}
               <img
                 className="w-9 h-9 object-cover mr-1"
                 alt="icon"
-                src="/images/mask-group@2x.png"
+                src={nfts[currentSlideIndex]?.sellerProfileImage}
               />
-              <span className="underline truncate">{truncateSeller(nfts[currentSlideIndex]?.seller)}</span>
+              <span className="underline truncate">
+                {truncateSeller(nfts[currentSlideIndex]?.sellerName)}
+              </span>
             </div>
-            <div className="flex items-center w-1/2"> {/* w-1/2を追加して幅を親要素に合わせます */}
+            <div className="flex items-center w-1/2">
+              {' '}
+              {/* w-1/2を追加して幅を親要素に合わせます */}
               <span className="truncate">{nfts[currentSlideIndex]?.name}</span>
             </div>
             <div className="flex items-center">
@@ -199,7 +220,6 @@ export default function Square() {
               </span>
             </div>
           </div>
-
 
           {/* <div className="absolute bottom-0 -mb-28 left-1/2 transform -translate-x-1/2">
             <QRCodeComponent

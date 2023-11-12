@@ -127,7 +127,7 @@ const NFTDetails = () => {
               />
             </div>
           </div>
-          <div className="">
+          <div className="text-[#ADB9C7]">
             <h1>
               #{nft.tokenId} {nft.name}
             </h1>
@@ -143,7 +143,7 @@ const NFTDetails = () => {
               </h2>
             </div>
 
-            {nft.seller.startsWith("0x0") ? null : (
+            {nft.seller.startsWith('0x0') ? null : (
               <div>
                 <p>Seller </p>
                 <h2 className="my-0 ssm:text-sm text-transparent font-bold bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600">
@@ -170,13 +170,11 @@ const NFTDetails = () => {
               }}
             >
               {!isWalletConnected
-                ? "Connect Wallet"
+                ? 'Connect Wallet'
                 : addr === nft.owner.toLocaleLowerCase()
-                  ? "Sell NFT"
-                  : "Buy NFT"}
+                ? 'Sell NFT'
+                : 'Buy NFT'}
             </button>
-
-
           </div>
         </section>
         <Footer />
