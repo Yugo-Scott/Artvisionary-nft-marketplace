@@ -22,9 +22,6 @@ export default function Square() {
     router.push('/playlist');
   };
 
-
-
-
   // const getContract = async () => {
   //   const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -49,77 +46,74 @@ export default function Square() {
   //   return contract;
   // };
 
- useEffect(() => {
-   const RETRY_INTERVAL = 5000; // 5 seconds
-   const MAX_RETRIES = 3;
-   const getNfts = async (retryCount = 0) => {
-     const accessToken = localStorage.getItem('accessToken');
+  useEffect(() => {
+    const RETRY_INTERVAL = 5000; // 5 seconds
+    const MAX_RETRIES = 3;
+    const getNfts = async (retryCount = 0) => {
+      const accessToken = localStorage.getItem('accessToken');
 
-     try {
-       const response = await axios.get(
-         process.env.NEXT_PUBLIC_BACKEND_API_URL + `users/likes`,
-         {
-           headers: {
-             Authorization: `Bearer ${accessToken}`,
-           },
-         }
-       );
-       console.log(response);
-       console.log(response.data.data.data.likes);
-       const items = await Promise.all(
-         response.data.data.data.likes.map(async (i) => {
-           const meta = await axios.get(mainURL + i.tokenURI);
-           console.log(i.tokenURI);
-           // let price = ethers.utils.formatUnits(i.price.toString(), "ether");
+      try {
+        const response = await axios.get(
+          process.env.NEXT_PUBLIC_BACKEND_API_URL + `users/likes`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        console.log(response);
+        console.log(response.data.data.data.likes);
+        const items = await Promise.all(
+          response.data.data.data.likes.map(async (i) => {
+            const meta = await axios.get(mainURL + i.tokenURI);
+            console.log(i.tokenURI);
+            // let price = ethers.utils.formatUnits(i.price.toString(), "ether");
 
-           let item = {
-             price: i.price,
-             tokenId: i.tokenId,
-             seller: i.seller,
-             owner: i.owner,
-            //  sellerProfileImage: i.seller.profile_image,
-            //  sellerName: i.seller.name,
-             image: meta.data.image,
-             name: i.name,
-             description: i.description,
-             tokenURI: i.tokenURI,
-           };
-           return item;
-         })
-       );
-       // setNfts(items);
+            let item = {
+              price: i.price,
+              tokenId: i.tokenId,
+              seller: i.seller,
+              owner: i.owner,
+              //  sellerProfileImage: i.seller.profile_image,
+              //  sellerName: i.seller.name,
+              image: meta.data.image,
+              name: i.name,
+              description: i.description,
+              tokenURI: i.tokenURI,
+            };
+            return item;
+          })
+        );
+        // setNfts(items);
         //  each element and index
-       response.data.data.sellers.forEach((seller, index) => {
+        response.data.data.sellers.forEach((seller, index) => {
           items[
             index
           ].sellerProfileImage = `${process.env.NEXT_PUBLIC_BACKEND_ROOT_URL}img/users/${seller.profile_image}`;
-          items[
-            index
-          ].sellerName = seller.name;
+          items[index].sellerName = seller.name;
         });
         console.log(items);
 
+        setNfts([...items].reverse());
+        setLoading(true);
+      } catch (error) {
+        console.error(error);
 
-       setNfts([...items].reverse());
-       setLoading(true);
-     } catch (error) {
-       console.error(error);
+        if (error.code === 'CALL_EXCEPTION' && retryCount < MAX_RETRIES) {
+          // Retry after a delay
+          setTimeout(() => {
+            getNfts(retryCount + 1);
+          }, RETRY_INTERVAL);
+          return;
+        }
 
-       if (error.code === 'CALL_EXCEPTION' && retryCount < MAX_RETRIES) {
-         // Retry after a delay
-         setTimeout(() => {
-           getNfts(retryCount + 1);
-         }, RETRY_INTERVAL);
-         return;
-       }
+        toast.error('Something went wrong、更新ボタンを押してください。');
+      }
+    };
 
-       toast.error('Something went wrong、更新ボタンを押してください。');
-     }
-   };
-
-   getNfts();
+    getNfts();
     setOpacity(1);
- }, []);
+  }, []);
 
   // useEffectの内部で画像のスライドショーの動作を設定
   useEffect(() => {
@@ -137,8 +131,6 @@ export default function Square() {
     };
   }, [loading, nfts, currentSlideIndex]); // loading, nfts, currentSlideIndex のいずれかが変更されたときに再度設定
 
-
-
   if (!loading)
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center font-body bg-gradient-to-br from-gray-900 to-black">
@@ -147,29 +139,51 @@ export default function Square() {
           Loading...
         </h2>
       </div>
-    )
+    );
 
+  // 画像のプリロード機能
+  const preloadImage = (src) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+  };
 
+  const nextSlide = async () => {
+    // 次のスライドの画像URLを取得
+    const nextIndex = (currentSlideIndex + 1) % nfts.length;
+    const nextImageUrl = mainURL + nfts[nextIndex].image;
 
-
-
-  const nextSlide = () => {
-    // 透明度を0に設定してフェードアウト
-    setOpacity(0);
+    // 次の画像をプリロード
+    await preloadImage(nextImageUrl);
     // 次のスライドに切り替える前にアニメーションを待機
     setTimeout(() => {
-      setCurrentSlideIndex((prevIndex) => (prevIndex + 1) % nfts.length);
+      setCurrentSlideIndex(nextIndex);
       // 透明度を1に設定してフェードイン
       setOpacity(1);
-    }, 500);
+    }, 1000);
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex((prevIndex) => (prevIndex - 1 + nfts.length) % nfts.length);
+    setCurrentSlideIndex(
+      (prevIndex) => (prevIndex - 1 + nfts.length) % nfts.length
+    );
   };
 
   // NFTの詳細ページへのURLを取得
-  const nftDetailURL = `https://artvisionary-nft-marketplace-pi.vercel.app/nft-details?price=${nfts[currentSlideIndex]?.price}&tokenId=${nfts[currentSlideIndex]?.tokenId}&seller=${nfts[currentSlideIndex]?.seller}&owner=${nfts[currentSlideIndex]?.owner}&image=${encodeURIComponent(nfts[currentSlideIndex]?.image)}&name=${encodeURIComponent(nfts[currentSlideIndex]?.name)}&description=${encodeURIComponent(nfts[currentSlideIndex]?.description)}&tokenURI=${encodeURIComponent(nfts[currentSlideIndex]?.tokenURI)}`;
+  const nftDetailURL = `https://artvisionary-nft-marketplace-pi.vercel.app/nft-details?price=${
+    nfts[currentSlideIndex]?.price
+  }&tokenId=${nfts[currentSlideIndex]?.tokenId}&seller=${
+    nfts[currentSlideIndex]?.seller
+  }&owner=${nfts[currentSlideIndex]?.owner}&image=${encodeURIComponent(
+    nfts[currentSlideIndex]?.image
+  )}&name=${encodeURIComponent(
+    nfts[currentSlideIndex]?.name
+  )}&description=${encodeURIComponent(
+    nfts[currentSlideIndex]?.description
+  )}&tokenURI=${encodeURIComponent(nfts[currentSlideIndex]?.tokenURI)}`;
   const nftDetailURL2 = `https://artvisionary-nft-marketplace-pi.vercel.app/dashboard`;
 
   const truncateSeller = (seller) => seller.slice(-4);
@@ -184,11 +198,11 @@ export default function Square() {
           <img
             src={mainURL + nfts[currentSlideIndex]?.image}
             alt={nfts[currentSlideIndex]?.name}
-            className={`object-contain max-h-[676px] max-w-[676px] h-full w-full p-4 transition-opacity duration-500 ${
+            className={`object-contain max-h-[676px] max-w-[676px] h-full w-full p-4 transition-opacity duration-1000 ${
               opacity ? 'opacity-100' : 'opacity-0'
             }`}
-            // スライドが変わる度にアニメーションを実行
             style={{ opacity: opacity }}
+            onLoad={() => setOpacity(1)}
           />
 
           <div className="flex justify-between absolute bottom-0 left-0 right-0 px-4 py-2 text-[#a3a3a3] w-full">
@@ -201,7 +215,7 @@ export default function Square() {
                 src={nfts[currentSlideIndex]?.sellerProfileImage}
               />
               <span className="underline truncate">
-                {truncateSeller(nfts[currentSlideIndex]?.sellerName)}
+                {nfts[currentSlideIndex]?.sellerName}
               </span>
             </div>
             <div className="flex items-center w-1/2">
@@ -241,7 +255,4 @@ export default function Square() {
       </div>
     </>
   );
-
-
-
 }
