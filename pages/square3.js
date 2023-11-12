@@ -87,10 +87,10 @@ export default function Square() {
         // setNfts(items);
         //  each element and index
         response.data.data.sellers.forEach((seller, index) => {
-          items[
-            index
-          ].sellerProfileImage = `${process.env.NEXT_PUBLIC_BACKEND_ROOT_URL}img/users/${seller.profile_image}`;
-          items[index].sellerName = seller.name;
+          items[index].sellerProfileImage =
+            `${process.env.NEXT_PUBLIC_BACKEND_ROOT_URL}img/users/${seller?.profile_image}` ||
+            '${process.env.NEXT_PUBLIC_BACKEND_ROOT_URL}img/users/default.jpg';
+          items[index].sellerName = seller?.name;
         });
         console.log(items);
 
